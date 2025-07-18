@@ -1,20 +1,25 @@
 let employees = [];
 let currentUser = null;
 
+// Fetch all employees for dropdowns and hierarchy
 async function fetchEmployees() {
   const res = await fetch('/employees');
   employees = await res.json();
   populateManagerDropdowns();
 }
 
+// Populate manager dropdowns, excluding the current user
 function populateManagerDropdowns() {
-  const managerOptions = employees.map(emp =>
-    `<option value="${emp.id}">${emp.name} (${emp.email})</option>`
-  );
-  document.getElementById('signup-manager').innerHTML = managerOptions.join('');
-  document.getElementById('update-manager').innerHTML = managerOptions.join('');
+  const filterManagers = (excludeId) =>
+    employees.filter(emp => emp.id !== excludeId)
+      .map(emp => `<option value="${emp.id}">${emp.name} (${emp.email})</option>`);
+  // For signup, exclude no one (since user doesn't exist yet)
+  document.getElementById('signup-manager').innerHTML = filterManagers(null).join('');
+  // For update, exclude current user
+  document.getElementById('update-manager').innerHTML = filterManagers(currentUser ? currentUser.id : null).join('');
 }
 
+// Entry navigation
 function showLogin() {
   document.getElementById('entry-section').classList.add('hidden');
   document.getElementById('login-section').classList.remove('hidden');
@@ -29,9 +34,24 @@ function showSignup() {
 function backToEntry() {
   document.getElementById('login-section').classList.add('hidden');
   document.getElementById('signup-section').classList.add('hidden');
+  document.getElementById('post-login-section').classList.add('hidden');
+  document.getElementById('hierarchy-section').classList.add('hidden');
+  document.getElementById('update-section').classList.add('hidden');
   document.getElementById('entry-section').classList.remove('hidden');
 }
 
+// After login/signup, show post-login options
+function afterLoginOrSignup() {
+  document.getElementById('login-section').classList.add('hidden');
+  document.getElementById('signup-section').classList.add('hidden');
+  document.getElementById('entry-section').classList.add('hidden');
+  document.getElementById('update-section').classList.add('hidden');
+  document.getElementById('hierarchy-section').classList.add('hidden');
+  document.getElementById('post-login-section').classList.remove('hidden');
+  document.getElementById('welcome-user').textContent = currentUser.name;
+}
+
+// Login logic
 async function login(event) {
   event.preventDefault();
   const email = document.getElementById('login-email').value.trim();
@@ -43,9 +63,10 @@ async function login(event) {
     return;
   }
   currentUser = user;
-  showUpdatePage();
+  fetchEmployees().then(afterLoginOrSignup);
 }
 
+// Signup logic
 async function signup(event) {
   event.preventDefault();
   const firstName = document.getElementById('signup-firstname').value.trim();
@@ -70,32 +91,37 @@ async function signup(event) {
     await fetchEmployees();
     const user = employees.find(emp => emp.email.toLowerCase() === email.toLowerCase());
     currentUser = user;
-    showUpdatePage();
+    afterLoginOrSignup();
   } else {
     document.getElementById('signup-error').textContent = 'Error: ' + (await addRes.json()).error;
   }
 }
 
+// Show update page
 function showUpdatePage() {
-  document.getElementById('login-section').classList.add('hidden');
-  document.getElementById('signup-section').classList.add('hidden');
-  document.getElementById('entry-section').classList.add('hidden');
+  document.getElementById('post-login-section').classList.add('hidden');
   document.getElementById('update-section').classList.remove('hidden');
+  document.getElementById('hierarchy-section').classList.add('hidden');
   document.getElementById('current-user').textContent = `${currentUser.name} (${currentUser.email})`;
   const [firstName, ...lastNameParts] = currentUser.name.split(' ');
   document.getElementById('update-firstname').value = firstName;
   document.getElementById('update-lastname').value = lastNameParts.join(' ');
   document.getElementById('update-email').value = currentUser.email;
   document.getElementById('update-position').value = currentUser.position;
-  fetchEmployees().then(() => {
-    const updateManagerSelect = document.getElementById('update-manager');
-    Array.from(updateManagerSelect.options).forEach(opt => {
-      opt.selected = currentUser.managers && currentUser.managers.some(m => m.id == opt.value);
-    });
+  populateManagerDropdowns();
+  // Pre-select current managers
+  const updateManagerSelect = document.getElementById('update-manager');
+  Array.from(updateManagerSelect.options).forEach(opt => {
+    opt.selected = currentUser.managers && currentUser.managers.some(m => m.id == opt.value);
   });
+  // Show current managers
+  const managerNames = (currentUser.managers || []).map(m => m.name).join(', ');
+  document.getElementById('current-managers').textContent =
+    managerNames ? `Your current manager(s): ${managerNames}` : 'No manager assigned.';
   document.getElementById('update-success').textContent = '';
 }
 
+// Update user info
 async function updateUser(event) {
   event.preventDefault();
   const firstName = document.getElementById('update-firstname').value.trim();
@@ -115,15 +141,45 @@ async function updateUser(event) {
     await fetchEmployees();
     const user = employees.find(emp => emp.id == currentUser.id);
     currentUser = user;
+    showUpdatePage();
   } else {
     document.getElementById('update-success').textContent = 'Error: ' + (await res.json()).error;
   }
 }
 
-function logout() {
-  currentUser = null;
+// Show hierarchy section
+function showHierarchy() {
+  document.getElementById('post-login-section').classList.add('hidden');
+  document.getElementById('hierarchy-section').classList.remove('hidden');
   document.getElementById('update-section').classList.add('hidden');
-  document.getElementById('entry-section').classList.remove('hidden');
+  renderHierarchy();
 }
 
-fetchEmployees(); 
+// Back to post-login options
+function backToPostLogin() {
+  document.getElementById('hierarchy-section').classList.add('hidden');
+  document.getElementById('update-section').classList.add('hidden');
+  document.getElementById('post-login-section').classList.remove('hidden');
+}
+
+// Render a simple org chart as a nested list
+function renderHierarchy() {
+  const tbody = document.querySelector('#hierarchy-table tbody');
+  tbody.innerHTML = employees.map(emp => {
+    const managerNames = (emp.managers && emp.managers.length)
+      ? emp.managers.map(m => m.name).join(', ')
+      : '—';
+    return `<tr>
+      <td><strong>${emp.name}</strong></td>
+      <td>${emp.position}</td>
+      <td>${managerNames}</td>
+    </tr>`;
+  }).join('');
+}
+
+function logout() {
+  currentUser = null;
+  backToEntry();
+}
+
+fetchEmployees();

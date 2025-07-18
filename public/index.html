@@ -54,11 +54,20 @@
       <div id="signup-error" class="error"></div>
     </div>
 
+    <!-- Post-Login Section -->
+    <div id="post-login-section" class="hidden">
+      <h2>Welcome, <span id="welcome-user"></span>!</h2>
+      <div class="btn-row">
+        <button onclick="showHierarchy()">View Hierarchy</button>
+        <button onclick="showUpdatePage()">Update My Info</button>
+      </div>
+    </div>
+
     <!-- Update Page -->
     <div id="update-section" class="hidden">
       <div class="user-info">
         <span>Logged in as: <span id="current-user"></span></span>
-        <button style="width:auto; padding:6px 18px; font-size:0.98em;" onclick="logout()">Logout</button>
+        <button style="width:auto; padding:7px 22px; font-size:1em;" onclick="logout()">Logout</button>
       </div>
       <h2>Update Your Info</h2>
       <form id="update-form" onsubmit="updateUser(event)">
@@ -76,6 +85,25 @@
         <button type="submit">Update</button>
       </form>
       <div id="update-success" class="success"></div>
+      <div id="current-managers" style="text-align:center; margin-bottom:10px;"></div>
+    </div>
+
+    <!-- Hierarchy Section -->
+    <div id="hierarchy-section" class="hidden">
+      <h2>Organization Hierarchy</h2>
+      <table id="hierarchy-table" class="hierarchy-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Position</th>
+            <th>Manager(s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be filled by JS -->
+        </tbody>
+      </table>
+      <button onclick="backToPostLogin()">Back</button>
     </div>
   </div>
   <script src="main.js"></script>
