@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Entry Page -->
+    <div id="entry-section">
+      <h2>Welcome</h2>
+      <div class="btn-row">
+        <button onclick="showLogin()">Login</button>
+        <button onclick="showSignup()">Sign Up</button>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-section" class="hidden">
+      <h2>Login</h2>
+      <form id="login-form" onsubmit="login(event)">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" required placeholder="your@email.com">
+        <div class="btn-row">
+          <button type="submit">Login</button>
+          <button type="button" onclick="backToEntry()">Back</button>
+        </div>
+      </form>
+      <div id="login-error" class="error"></div>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signup-section" class="hidden">
+      <h2>Sign Up</h2>
+      <form id="signup-form" onsubmit="signup(event)">
+        <label for="signup-firstname">First Name</label>
+        <input type="text" id="signup-firstname" required>
+        <label for="signup-lastname">Last Name</label>
+        <input type="text" id="signup-lastname" required>
+        <label for="signup-email">Email</label>
+        <input type="email" id="signup-email" required>
+        <label for="signup-position">Position</label>
+        <input type="text" id="signup-position" required>
+        <label for="signup-manager">Manager(s)</label>
+        <select id="signup-manager" multiple></select>
+        <small>Hold Ctrl (Windows) or Cmd (Mac) to select multiple managers.</small>
+        <div class="btn-row">
+          <button type="submit">Sign Up</button>
+          <button type="button" onclick="backToEntry()">Back</button>
+        </div>
+      </form>
+      <div id="signup-error" class="error"></div>
+    </div>
+
+    <!-- Update Page -->
+    <div id="update-section" class="hidden">
+      <div class="user-info">
+        <span>Logged in as: <span id="current-user"></span></span>
+        <button style="width:auto; padding:6px 18px; font-size:0.98em;" onclick="logout()">Logout</button>
+      </div>
+      <h2>Update Your Info</h2>
+      <form id="update-form" onsubmit="updateUser(event)">
+        <label for="update-firstname">First Name</label>
+        <input type="text" id="update-firstname" required>
+        <label for="update-lastname">Last Name</label>
+        <input type="text" id="update-lastname" required>
+        <label for="update-email">Email</label>
+        <input type="email" id="update-email" required>
+        <label for="update-position">Position</label>
+        <input type="text" id="update-position" required>
+        <label for="update-manager">Manager(s)</label>
+        <select id="update-manager" multiple></select>
+        <small>Hold Ctrl (Windows) or Cmd (Mac) to select multiple managers.</small>
+        <button type="submit">Update</button>
+      </form>
+      <div id="update-success" class="success"></div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
