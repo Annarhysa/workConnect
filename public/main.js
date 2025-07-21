@@ -32,12 +32,14 @@ function showLogin() {
   document.getElementById('entry-section').classList.add('hidden');
   document.getElementById('login-section').classList.remove('hidden');
   document.getElementById('login-error').textContent = '';
+  showGlobalNav(false);
 }
 function showSignup() {
   document.getElementById('entry-section').classList.add('hidden');
   document.getElementById('signup-section').classList.remove('hidden');
   document.getElementById('signup-error').textContent = '';
   fetchEmployees();
+  showGlobalNav(false);
 }
 function backToEntry() {
   document.getElementById('login-section').classList.add('hidden');
@@ -46,7 +48,11 @@ function backToEntry() {
   document.getElementById('hierarchy-section').classList.add('hidden');
   document.getElementById('update-section').classList.add('hidden');
   document.getElementById('entry-section').classList.remove('hidden');
+  showGlobalNav(false);
 }
+
+// On initial page load, hide the global nav
+showGlobalNav(false);
 
 // After login/signup, show post-login options
 function afterLoginOrSignup() {
@@ -57,7 +63,7 @@ function afterLoginOrSignup() {
   document.getElementById('hierarchy-section').classList.add('hidden');
   document.getElementById('post-login-section').classList.remove('hidden');
   document.getElementById('welcome-user').textContent = currentUser.name;
-  // Do NOT call showUpdatePage() here!
+  showGlobalNav(true);
 }
 
 // Login logic
@@ -145,6 +151,7 @@ function showUpdatePage() {
   document.getElementById('current-managers').textContent =
     managerNames ? `Your current manager(s): ${managerNames}` : 'No manager assigned.';
   document.getElementById('update-success').textContent = '';
+  showGlobalNav(true);
 }
 
 async function updateUser(event) {
@@ -184,6 +191,7 @@ function showHierarchy() {
   document.getElementById('hierarchy-section').classList.remove('hidden');
   document.getElementById('update-section').classList.add('hidden');
   renderHierarchy();
+  showGlobalNav(true);
 }
 
 // Back to post-login options
@@ -217,6 +225,21 @@ function renderHierarchy() {
 function logout() {
   currentUser = null;
   backToEntry();
+}
+
+function backNav() {
+  if (!document.getElementById('post-login-section').classList.contains('hidden')) {
+    backToEntry();
+  } else if (!document.getElementById('update-section').classList.contains('hidden') ||
+             !document.getElementById('hierarchy-section').classList.contains('hidden')) {
+    backToPostLogin();
+  } else {
+    backToEntry();
+  }
+}
+
+function showGlobalNav(show) {
+  document.getElementById('global-nav').style.display = show ? 'flex' : 'none';
 }
 
 fetchEmployees();

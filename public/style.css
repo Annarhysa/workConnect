@@ -257,3 +257,27 @@ button:hover, button:focus {
 #update-manager-checkboxes label {
   margin-bottom: 2px;
 }
+
+.global-nav {
+  position: fixed;
+  right: 24px;
+  left: auto;
+  bottom: 24px;
+  z-index: 100;
+  display: flex;
+  gap: 12px;
+}
+.global-nav button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 22px;
+  font-size: 1em;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(74,90,90,0.08);
+  transition: background 0.2s;
+}
+.global-nav button:hover {
+  background: var(--primary-dark);
+}
