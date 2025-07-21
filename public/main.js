@@ -18,13 +18,13 @@ async function fetchEmployeeManagers() {
 
 // Populate manager dropdowns, excluding the current user
 function populateManagerDropdowns() {
-  const filterManagers = (excludeId) =>
-    employees.filter(emp => emp.id !== excludeId)
-      .map(emp => `<option value="${emp.id}">${emp.name} (${emp.email})</option>`);
-  // For signup, exclude no one (since user doesn't exist yet)
-  document.getElementById('signup-manager').innerHTML = filterManagers(null).join('');
-  // For update, exclude current user
-  document.getElementById('update-manager').innerHTML = filterManagers(currentUser ? currentUser.id : null).join('');
+  const signupManager = document.getElementById('signup-manager');
+  if (signupManager) {
+    signupManager.innerHTML = employees.map(emp =>
+      `<option value="${emp.id}">${emp.name} (${emp.email})</option>`
+    ).join('');
+  }
+  // No update-manager select anymore!
 }
 
 // Entry navigation
@@ -57,6 +57,7 @@ function afterLoginOrSignup() {
   document.getElementById('hierarchy-section').classList.add('hidden');
   document.getElementById('post-login-section').classList.remove('hidden');
   document.getElementById('welcome-user').textContent = currentUser.name;
+  // Do NOT call showUpdatePage() here!
 }
 
 // Login logic
@@ -71,6 +72,7 @@ async function login(event) {
     return;
   }
   currentUser = user;
+  console.log('Logging in as', user);
   fetchEmployees().then(afterLoginOrSignup);
 }
 
@@ -105,6 +107,19 @@ async function signup(event) {
   }
 }
 
+function renderManagerCheckboxes(containerId, selectedIds = []) {
+  if (!currentUser) return; // Don't render if not logged in
+  const container = document.getElementById(containerId);
+  container.innerHTML = employees
+    .filter(emp => emp.id !== currentUser.id)
+    .map(emp => {
+      const checked = selectedIds.includes(emp.id) ? 'checked' : '';
+      return `<label style="display:block; margin-bottom:4px;">
+        <input type="checkbox" value="${emp.id}" ${checked}> ${emp.name} (${emp.email})
+      </label>`;
+    }).join('');
+}
+
 function showUpdatePage() {
   document.getElementById('post-login-section').classList.add('hidden');
   document.getElementById('update-section').classList.remove('hidden');
@@ -115,18 +130,12 @@ function showUpdatePage() {
   document.getElementById('update-lastname').value = lastNameParts.join(' ');
   document.getElementById('update-email').value = currentUser.email;
   document.getElementById('update-position').value = currentUser.position;
-  populateManagerDropdowns();
-  // Pre-select current managers
-  const updateManagerSelect = document.getElementById('update-manager');
-  Array.from(updateManagerSelect.options).forEach(opt => {
-    opt.selected = employeeManagerRelations
-      .filter(rel => rel.employee_id === currentUser.id)
-      .some(rel => rel.manager_id == opt.value);
-  });
-  // Show current managers using employeeManagerRelations
+  // Get current manager IDs
   const managerIds = employeeManagerRelations
     .filter(rel => rel.employee_id === currentUser.id)
     .map(rel => rel.manager_id);
+  renderManagerCheckboxes('update-manager-checkboxes', managerIds);
+  // Show current managers
   const managerNames = managerIds.length
     ? managerIds.map(id => {
         const m = employees.find(e => e.id === id);
@@ -145,8 +154,9 @@ async function updateUser(event) {
   const name = firstName + ' ' + lastName;
   const email = document.getElementById('update-email').value;
   const position = document.getElementById('update-position').value;
-  // Collect manager_ids from the select element
-  const manager_ids = Array.from(document.getElementById('update-manager').selectedOptions).map(opt => parseInt(opt.value, 10));
+  // Collect checked manager IDs from checkboxes
+  const manager_ids = Array.from(document.querySelectorAll('#update-manager-checkboxes input[type="checkbox"]:checked'))
+    .map(cb => parseInt(cb.value, 10));
   const body = { name, email, position, manager_ids };
   const res = await fetch(`/employees/${currentUser.id}`, {
     method: 'PUT',

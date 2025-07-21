@@ -230,6 +230,30 @@ button:hover, button:focus {
   background: transparent;
 }
 
-#update-manager-checkboxes label, #update-manager-checkboxes input[type="checkbox"] {
-  display: none;
+#update-manager-checkboxes label {
+  font-size: 1em;
+  color: var(--text);
+  margin-bottom: 4px;
+  display: block;
+}
+#update-manager-checkboxes input[type="checkbox"] {
+  margin-right: 6px;
+  accent-color: var(--primary);
+}
+#update-manager-checkboxes.scroll-checkboxes {
+  max-width: 340px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--input-bg);
+  padding: 8px 6px;
+  margin-bottom: 8px;
+}
+#update-manager-checkboxes label {
+  margin-bottom: 2px;
 }

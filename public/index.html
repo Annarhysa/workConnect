@@ -80,8 +80,8 @@
         <label for="update-position">Position</label>
         <input type="text" id="update-position" required>
         <label for="update-manager">Manager(s)</label>
-        <select id="update-manager" multiple></select>
-        <small>Hold Ctrl (Windows) or Cmd (Mac) to select multiple managers.</small>
+        <div id="update-manager-checkboxes" class="scroll-checkboxes"></div>
+        <small>Select one or more managers.</small>
         <button type="submit">Update</button>
       </form>
       <div id="update-success" class="success"></div>
