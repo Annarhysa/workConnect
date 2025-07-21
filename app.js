@@ -210,6 +210,14 @@ app.get('/managers/:id/employees', (req, res) => {
   });
 });
 
+// Get all employee-manager relationships
+app.get('/employee_manager', (req, res) => {
+  db.query('SELECT employee_id, manager_id FROM employee_manager', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
 function getManagerIds(empId, callback) {
   db.query('SELECT manager_id FROM employee_manager WHERE employee_id = ?', [empId], (err, results) => {
     if (err) return callback(err);

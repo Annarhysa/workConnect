@@ -30,6 +30,8 @@ body {
   padding: 38px 32px 30px 32px;
   margin: 32px 0;
   animation: fadeIn 0.7s;
+  position: relative;
+  z-index: 2;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(30px);}
@@ -77,6 +79,21 @@ select[multiple] {
   min-height: 80px;
   height: 80px;
   overflow-y: auto;
+  width: 100%;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  font-size: 1rem;
+  margin-bottom: 2px;
+  transition: border var(--transition), box-shadow var(--transition);
+  box-shadow: 0 1px 4px rgba(74,90,90,0.04);
+  color: var(--text);
+  box-sizing: border-box;
 }
 input:focus, select:focus {
   border-color: var(--primary);
@@ -189,4 +206,30 @@ button:hover, button:focus {
 }
 .hierarchy-table tr:last-child td {
   border-bottom: none;
+}
+
+#welcome-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#welcome-bg svg {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+#entry-section {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+}
+
+#update-manager-checkboxes label, #update-manager-checkboxes input[type="checkbox"] {
+  display: none;
 }

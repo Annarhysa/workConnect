@@ -1,11 +1,19 @@
 let employees = [];
 let currentUser = null;
+let employeeManagerRelations = [];
 
 // Fetch all employees for dropdowns and hierarchy
 async function fetchEmployees() {
   const res = await fetch('/employees');
   employees = await res.json();
+  await fetchEmployeeManagers();
   populateManagerDropdowns();
+}
+
+// Get all employee-manager relationships
+async function fetchEmployeeManagers() {
+  const res = await fetch('/employee_manager');
+  employeeManagerRelations = await res.json();
 }
 
 // Populate manager dropdowns, excluding the current user
@@ -97,7 +105,6 @@ async function signup(event) {
   }
 }
 
-// Show update page
 function showUpdatePage() {
   document.getElementById('post-login-section').classList.add('hidden');
   document.getElementById('update-section').classList.remove('hidden');
@@ -112,16 +119,25 @@ function showUpdatePage() {
   // Pre-select current managers
   const updateManagerSelect = document.getElementById('update-manager');
   Array.from(updateManagerSelect.options).forEach(opt => {
-    opt.selected = currentUser.managers && currentUser.managers.some(m => m.id == opt.value);
+    opt.selected = employeeManagerRelations
+      .filter(rel => rel.employee_id === currentUser.id)
+      .some(rel => rel.manager_id == opt.value);
   });
-  // Show current managers
-  const managerNames = (currentUser.managers || []).map(m => m.name).join(', ');
+  // Show current managers using employeeManagerRelations
+  const managerIds = employeeManagerRelations
+    .filter(rel => rel.employee_id === currentUser.id)
+    .map(rel => rel.manager_id);
+  const managerNames = managerIds.length
+    ? managerIds.map(id => {
+        const m = employees.find(e => e.id === id);
+        return m ? m.name : '';
+      }).filter(Boolean).join(', ')
+    : '';
   document.getElementById('current-managers').textContent =
     managerNames ? `Your current manager(s): ${managerNames}` : 'No manager assigned.';
   document.getElementById('update-success').textContent = '';
 }
 
-// Update user info
 async function updateUser(event) {
   event.preventDefault();
   const firstName = document.getElementById('update-firstname').value.trim();
@@ -129,7 +145,8 @@ async function updateUser(event) {
   const name = firstName + ' ' + lastName;
   const email = document.getElementById('update-email').value;
   const position = document.getElementById('update-position').value;
-  const manager_ids = Array.from(document.getElementById('update-manager').selectedOptions).map(opt => parseInt(opt.value));
+  // Collect manager_ids from the select element
+  const manager_ids = Array.from(document.getElementById('update-manager').selectedOptions).map(opt => parseInt(opt.value, 10));
   const body = { name, email, position, manager_ids };
   const res = await fetch(`/employees/${currentUser.id}`, {
     method: 'PUT',
@@ -137,12 +154,16 @@ async function updateUser(event) {
     body: JSON.stringify(body)
   });
   if (res.ok) {
-    document.getElementById('update-success').textContent = 'Update successful!';
     await fetchEmployees();
     const user = employees.find(emp => emp.id == currentUser.id);
     currentUser = user;
     showUpdatePage();
+    document.getElementById('update-success').textContent = 'Update successful!';
+    setTimeout(() => {
+      document.getElementById('update-success').textContent = '';
+    }, 3000);
   } else {
+    showUpdatePage();
     document.getElementById('update-success').textContent = 'Error: ' + (await res.json()).error;
   }
 }
@@ -166,8 +187,14 @@ function backToPostLogin() {
 function renderHierarchy() {
   const tbody = document.querySelector('#hierarchy-table tbody');
   tbody.innerHTML = employees.map(emp => {
-    const managerNames = (emp.managers && emp.managers.length)
-      ? emp.managers.map(m => m.name).join(', ')
+    const managerIds = employeeManagerRelations
+      .filter(rel => rel.employee_id === emp.id)
+      .map(rel => rel.manager_id);
+    const managerNames = managerIds.length
+      ? managerIds.map(id => {
+          const m = employees.find(e => e.id === id);
+          return m ? m.name : '';
+        }).filter(Boolean).join(', ')
       : '—';
     return `<tr>
       <td><strong>${emp.name}</strong></td>
