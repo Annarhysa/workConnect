@@ -54,11 +54,19 @@
       <div id="signup-error" class="error"></div>
     </div>
 
+    <!-- Post-Login Section -->
+    <div id="post-login-section" class="hidden">
+      <h2>Welcome, <span id="welcome-user"></span>!</h2>
+      <div class="btn-row">
+        <button onclick="showHierarchy()">View Hierarchy</button>
+        <button onclick="showUpdatePage()">Update My Info</button>
+      </div>
+    </div>
+
     <!-- Update Page -->
     <div id="update-section" class="hidden">
       <div class="user-info">
         <span>Logged in as: <span id="current-user"></span></span>
-        <button style="width:auto; padding:6px 18px; font-size:0.98em;" onclick="logout()">Logout</button>
       </div>
       <h2>Update Your Info</h2>
       <form id="update-form" onsubmit="updateUser(event)">
@@ -71,13 +79,49 @@
         <label for="update-position">Position</label>
         <input type="text" id="update-position" required>
         <label for="update-manager">Manager(s)</label>
-        <select id="update-manager" multiple></select>
-        <small>Hold Ctrl (Windows) or Cmd (Mac) to select multiple managers.</small>
+        <div id="update-manager-checkboxes" class="scroll-checkboxes"></div>
+        <small>Select one or more managers.</small>
         <button type="submit">Update</button>
       </form>
       <div id="update-success" class="success"></div>
+      <div id="current-managers" style="text-align:center; margin-bottom:10px;"></div>
+    </div>
+
+    <!-- Hierarchy Section -->
+    <div id="hierarchy-section" class="hidden">
+      <h2>Organization Hierarchy</h2>
+      <table id="hierarchy-table" class="hierarchy-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Position</th>
+            <th>Manager(s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be filled by JS -->
+        </tbody>
+      </table>
     </div>
   </div>
   <script src="main.js"></script>
+  <div id="global-nav" class="global-nav" style="display:none;">
+    <button onclick="backNav()" id="global-back-btn">Back</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+  <div id="welcome-bg">
+    <svg width="100%" height="100%" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <!-- Top wave -->
+      <path d="M0,200 Q300,300 600,200 T1200,200 V0 H0 V200 Z" fill="#ff8c1a" fill-opacity="0.10"/>
+      <!-- Upper middle wave -->
+      <path d="M0,400 Q300,500 600,400 T1200,400 V200 H0 V400 Z" fill="#ef5a43" fill-opacity="0.08"/>
+      <!-- Center wave -->
+      <path d="M0,700 Q300,800 600,700 T1200,700 V400 H0 V700 Z" fill="#8bb6b6" fill-opacity="0.10"/>
+      <!-- Lower middle wave -->
+      <path d="M0,900 Q300,1000 600,900 T1200,900 V700 H0 V900 Z" fill="#ff8c1a" fill-opacity="0.08"/>
+      <!-- Bottom wave -->
+      <path d="M0,1200 Q300,1100 600,1200 T1200,1200 V900 H0 V1200 Z" fill="#ef5a43" fill-opacity="0.10"/>
+    </svg>
+  </div>
 </body>
 </html>
